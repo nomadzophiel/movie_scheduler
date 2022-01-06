@@ -91,8 +91,8 @@ class MoviesController < ApplicationController
         show_times << movie_start.strftime("%I:%M %p").to_s + ' to ' + movie_end.strftime("%I:%M %p").to_s 
         #15 minutes of previews before the movie we just added and 20 minutes of cleaning after the one we're about to add plus the run_time gap to get a multiple of 5
         #These new start and end times are only added to show times if the movie starts 15 or more minutes after the theater opens
-        movie_end = movie_start - 35.minutes  
-        movie_start = movie_end - @movie.run_time.minutes - @run_time_gap.minutes
+        movie_end = movie_start - 35.minutes  - @run_time_gap.minutes
+        movie_start = movie_end - @movie.run_time.minutes 
       end
       @show_times[t[0]] = show_times.reverse #puts the show times in earliest to latest order
     end
