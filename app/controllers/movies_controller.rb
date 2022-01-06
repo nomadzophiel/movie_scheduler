@@ -70,7 +70,7 @@ class MoviesController < ApplicationController
     @weekday_open = Time.now.beginning_of_day + 11.hours
     @weekday_close = Time.now.beginning_of_day + 23.hours
     @weekend_open = Time.now.beginning_of_day + 10.hours + 30.minutes
-    @weekend_close = Time.now.beginning_of_day + 23.hours
+    @weekend_close = Time.now.beginning_of_day + 24.hours
 
     #"The last showing should end as close as possible to the end of the cinema's hours of operation", 
     #I'm working on the assumption that we don't need to add 20 minutes after the final show for cleanup. They can do that after closing.
