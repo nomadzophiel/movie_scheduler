@@ -61,44 +61,39 @@ class MoviesController < ApplicationController
 
   def schedule
     set_movie
-    @run_time = @movie.run_time.ceil_to(5) #rounds the movie run time up to the nearest 5 using the Rounding gem
-    @weekdays = [] #We'll be filling both of these with show time strings
-    @weekends = []
-    
+    @run_time = @movie.run_time.ceil_to(5) #rounds the movie run time up to the nearest 5 using the Rounding gem. Now all shows begin at a multiple of 5 minutes.
+    @show_times = {} #The empty hash that we'll fill and pass to the view
     #in a more fleshed out app, these times would probably have their own database entries and we'd also iterate through each set of open-close times
+    #In a full application, theater hours would have their own table and add things like holidays
+    @theater_hours = {"weekday" => [11, 23], "weekend" => [10.5, 24]} 
     
-    @weekday_open = Time.now.beginning_of_day + 11.hours
-    @weekday_close = Time.now.beginning_of_day + 23.hours
-    @weekend_open = Time.now.beginning_of_day + 10.hours + 30.minutes
-    @weekend_close = Time.now.beginning_of_day + 24.hours
-
     #"The last showing should end as close as possible to the end of the cinema's hours of operation", 
-    #I'm working on the assumption that we don't need to add 20 minutes after the final show for cleanup. They can do that after closing.
+    #I'm working on the assumption that we don't need to add 20 minutes after the final show for cleanup.
+    #Any place I've ever worked in retail pays for some time after the official closing time for those kind of duties.
+
     #Since there is no rule regarding how late after opening the first showing can start, 
-    #we should start with the last showing and work backwards. Therefore, every show ends exactly at closing.
-    
-    @weekday_movie_end = @weekday_close
-    @weekday_movie_start = @weekday_close - @run_time.minutes 
-    while @weekday_movie_start >= (@weekday_open + 15.minutes) 
-      @weekdays << @weekday_movie_start.strftime("%I:%M %p").to_s + ' to ' + @weekday_movie_end.strftime("%I:%M %p").to_s #creates a string with start and end times for the show and adds it to the array of shows for the day.
-      @weekday_movie_end = @weekday_movie_start - 35.minutes #15 minutes of previews before the movie we just added and 20 minutes of cleaning after the one we're about to add.
-      @weekday_movie_start = @weekday_movie_end - @run_time.minutes #These new start and end times are only added if the movie starts 15 or more minutes after the theater opens
+    #we should start with the last showing and work backwards. Therefore, the last show ends exactly at closing in every theater
+    #then counts backwards with 35 minutes between shows.
+    #An alternative would be to divide the excess free time evenly between movies, which I may do as a separate branch.
+    #This version keeps labor costs down since some employees can come in for the first show instead of right at opening.
+
+    #Option 2 would be to stagger closing times so that a single cleaning crew can service all theaters
+    #This also moves the first show of the day earlier by a like amount.
+    #If possible, please follow up with customer. present current build as well as "equal spacing" and "staggered closing" options.
+
+    @theater_hours.each do |t|
+      theater_open = Time.now.beginning_of_day + t[1][0].hours
+      theater_close = Time.now.beginning_of_day + t[1][1].hours
+      movie_end = theater_close
+      movie_start = movie_end - @run_time.minutes
+      show_times = [] 
+      while movie_start >= (theater_open + 15.minutes) #Have to get those previews for the first movie in there 
+        show_times << movie_start.strftime("%I:%M %p").to_s + ' to ' + movie_end.strftime("%I:%M %p").to_s #creates a string with start and end times for the show and adds it to the array of shows for the day.
+        movie_end = movie_start - 35.minutes #15 minutes of previews before the movie we just added and 20 minutes of cleaning after the one we're about to add.
+        movie_start = movie_end - @run_time.minutes #These new start and end times are only added to show times if the movie starts 15 or more minutes after the theater opens
+      end
+      @show_times[t[0]] = show_times.reverse #puts the show times in earliest to latest order
     end
-    
-    #and again for the weekends
-    
-    @weekend_movie_end = @weekend_close
-    @weekend_movie_start = @weekend_close - @run_time.minutes
-    while @weekend_movie_start >= (@weekend_open + 15.minutes) 
-      @weekends << @weekend_movie_start.strftime("%I:%M %p").to_s + ' to ' + @weekend_movie_end.strftime("%I:%M %p").to_s
-      @weekend_movie_end = @weekend_movie_start - 35.minutes
-      @weekend_movie_start = @weekend_movie_end - @run_time.minutes
-    end
-    
-    #now we have to reverse the array of entries to go from earliest to latest
-    
-    @weekday_movies = @weekdays.reverse
-    @weekend_movies = @weekends.reverse
   end
 
   private

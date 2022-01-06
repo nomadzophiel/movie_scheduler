@@ -1,12 +1,9 @@
 <p id="notice"><%= notice %></p>
 
 <h1>Movie Schedule For <%= @movie.name%> </h1>
-
-<h2>Weekdays</h2>
-<% @weekday_movies.each do |m| %>
-	<%= m %><br />
-<% end %>
-<h2>Weekends</h2>
-<% @weekend_movies.each do |m| %>
-	<%= m %><br />
+<% @show_times.each do |s| %>
+	<h2><%= s[0] %></h2>
+	<% s[1].each do |show| %>
+		<%= show %> <br />
+	<% end %>
 <% end %>
