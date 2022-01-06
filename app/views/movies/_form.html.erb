@@ -1,0 +1,33 @@
+<%= form_with(model: movie, local: true) do |form| %>
+  <% if movie.errors.any? %>
+    <div id="error_explanation">
+      <h2><%= pluralize(movie.errors.count, "error") %> prohibited this movie from being saved:</h2>
+
+      <ul>
+      <% movie.errors.full_messages.each do |message| %>
+        <li><%= message %></li>
+      <% end %>
+      </ul>
+    </div>
+  <% end %>
+
+  <div class="field">
+    <%= form.label :name %>
+    <%= form.text_field :name %>
+  </div>
+
+  <div class="field">
+    <%= form.label :rating %>
+    <% #In a more fleshed out application, rating would be its own databse table to account for different countries and future-proofing %>
+    <%= form.select :rating, ["G", "PG", "PG-13", "R", "NC-17"] %>
+  </div>
+
+  <div class="field">
+    <%= form.label :run_time_in_minutes %>
+    <%= form.number_field :run_time %>
+  </div>
+
+  <div class="actions">
+    <%= form.submit %>
+  </div>
+<% end %>
