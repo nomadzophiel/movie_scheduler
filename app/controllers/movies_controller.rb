@@ -63,7 +63,6 @@ class MoviesController < ApplicationController
     set_movie
     @run_time = @movie.run_time.ceil_to(5) #rounds the movie run time up to the nearest 5 using the Rounding gem. Now all shows begin at a multiple of 5 minutes.
     @show_times = {} #The empty hash that we'll fill and pass to the view
-    #in a more fleshed out app, these times would probably have their own database entries and we'd also iterate through each set of open-close times
     #In a full application, theater hours would have their own table and add things like holidays
     @theater_hours = {"weekday" => [11, 23], "weekend" => [10.5, 24]} 
     
