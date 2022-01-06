@@ -61,7 +61,7 @@ class MoviesController < ApplicationController
 
   def schedule
     set_movie
-    @run_time = @movie.run_time.ceil_to(5) #rounds the movie run time up to the nearest 5 using the Rounding gem. Now all shows begin at a multiple of 5 minutes.
+    @run_time_gap = @movie.run_time.ceil_to(5) - @movie.run_time #The extra time we need between movies so they always start on a multiple of 5 minutes.
     @show_times = {} #The empty hash that we'll fill and pass to the view
     #In a full application, theater hours would have their own table and add things like holidays
     @theater_hours = {"weekday" => [11, 23], "weekend" => [10.5, 24]} 
@@ -83,13 +83,16 @@ class MoviesController < ApplicationController
     @theater_hours.each do |t|
       theater_open = Time.now.beginning_of_day + t[1][0].hours
       theater_close = Time.now.beginning_of_day + t[1][1].hours
-      movie_end = theater_close
-      movie_start = movie_end - @run_time.minutes
+      movie_end = theater_close - @run_time_gap.minutes
+      movie_start = movie_end - @movie.run_time.minutes
       show_times = [] 
       while movie_start >= (theater_open + 15.minutes) #Have to get those previews for the first movie in there 
-        show_times << movie_start.strftime("%I:%M %p").to_s + ' to ' + movie_end.strftime("%I:%M %p").to_s #creates a string with start and end times for the show and adds it to the array of shows for the day.
-        movie_end = movie_start - 35.minutes #15 minutes of previews before the movie we just added and 20 minutes of cleaning after the one we're about to add.
-        movie_start = movie_end - @run_time.minutes #These new start and end times are only added to show times if the movie starts 15 or more minutes after the theater opens
+        #creates a string with start and end times for the show and adds it to the array of shows for the day.
+        show_times << movie_start.strftime("%I:%M %p").to_s + ' to ' + movie_end.strftime("%I:%M %p").to_s 
+        #15 minutes of previews before the movie we just added and 20 minutes of cleaning after the one we're about to add plus the run_time gap to get a multiple of 5
+        #These new start and end times are only added to show times if the movie starts 15 or more minutes after the theater opens
+        movie_end = movie_start - 35.minutes  
+        movie_start = movie_end - @movie.run_time.minutes - @run_time_gap.minutes
       end
       @show_times[t[0]] = show_times.reverse #puts the show times in earliest to latest order
     end
