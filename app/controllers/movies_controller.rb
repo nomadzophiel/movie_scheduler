@@ -80,9 +80,9 @@ class MoviesController < ApplicationController
     #This also moves the first show of the day earlier by a like amount.
     #If possible, please follow up with customer. present current build as well as "equal spacing" and "staggered closing" options.
 
-    @theater_hours.each do |t|
-      theater_open = Time.now.beginning_of_day + t[1][0].hours
-      theater_close = Time.now.beginning_of_day + t[1][1].hours
+    @theater_hours.each do |k, v|
+      theater_open = Time.now.beginning_of_day + v[0].hours
+      theater_close = Time.now.beginning_of_day + v[1].hours
       movie_end = theater_close - @run_time_gap.minutes
       movie_start = movie_end - @movie.run_time.minutes
       show_times = [] 
@@ -94,7 +94,7 @@ class MoviesController < ApplicationController
         movie_end = movie_start - 35.minutes  - @run_time_gap.minutes
         movie_start = movie_end - @movie.run_time.minutes 
       end
-      @show_times[t[0]] = show_times.reverse #puts the show times in earliest to latest order
+      @show_times[k] = show_times.reverse #puts the show times in earliest to latest order
     end
   end
 
