@@ -1,4 +1,4 @@
-Movie Scheduler by Matthew Sullins<br /><br />
+Movie Scheduler<br /><br />
 
 A basic Rails app using SQlite. <br /><br />
 
